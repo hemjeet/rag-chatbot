@@ -1,112 +1,102 @@
-# RAG Chatbot with Text Files
+# 🧠 RAG Document Chatbot
 
-A Streamlit-based application that allows you to chat with the content of text documents using Retrieval Augmented Generation (RAG) technology powered by OpenAI's language models.
-<img width="1875" height="778" alt="sample" src="https://github.com/user-attachments/assets/04cc8b21-5bc3-452f-baa7-d29588e89221" />
+A high-performance, production-ready Retrieval-Augmented Generation (RAG) web application. This app allows you to upload large PDFs and documents, index them using FAISS, and intelligently chat with them using OpenAI or DeepSeek models.
 
-
-## Features
-
-- **File Upload**: Upload any text file to chat with its content
-- **Multiple AI Models**: Choose from various OpenAI models (GPT-5, GPT-4, GPT-4o, GPT-4o Mini)
-- **Customizable Embeddings**: Select different embedding models for optimal performance
-- **Temperature Control**: Adjust the creativity/determinism of responses
-- **Reranking Option**: Enable NVIDIA reranking for improved answer quality
-- **Streaming Responses**: Real-time response generation for better user experience
-- **Document Preview**: View your uploaded document content
-
-## How to Use
-
-1. **Set API Keys**: 
-   - Enter your OpenAI API key (required)
-   - Optionally provide a NVIDIA API key for reranking functionality
-
-2. **Select Models**:
-   - Choose a chat model for response generation
-   - Select an embedding model for document processing
-
-3. **Adjust Settings**:
-   - Set temperature (0.0 for deterministic, 1.0 for creative responses)
-   - Enable/disable reranking if you have a NVIDIA API key
-
-4. **Upload Document**:
-   - Drag and drop or browse to upload a text file
-   - Click "Process Document" to build the search indexes
-
-5. **Ask Questions**:
-   - Type questions about your document content
-   - Receive answers based solely on the document content
-
-## Installation
-
-1. Clone this repository:
-```bash
-git clone <repository-url>
-cd rag-chatbot
-```
-
-2. Install required dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the application:
-```bash
-streamlit run app.py
-```
-
-## Requirements
-
-The application requires the following Python packages:
-- streamlit
-- langchain
-- langchain-community
-- langchain-openai
-- langchain-text-splitters
-- faiss-cpu
-- langchain-nvidia-ai-endpoints
-
-## API Keys
-
-You'll need to provide:
-- **OpenAI API Key**: Required for accessing language models
-- **NVIDIA API Key**: Optional, for enhanced reranking functionality
-
-## Model Options
-
-### Chat Models
-- GPT-5: latest model
-- GPT-4: More capable for complex tasks
-- GPT-4o: OpenAI's most advanced model
-- GPT-4o Mini: Smaller, cost-effective version
-
-### Embedding Models
-- text-embedding-3-small: Fastest option
-- text-embedding-3-large: Higher quality embeddings
-- text-embedding-ada-002: Balanced option
-
-## Technical Details
-
-This application uses:
-- **FAISS** for efficient vector similarity search
-- **BM25** for keyword-based retrieval
-- **Ensemble Retrieval** combining both methods
-- **NVIDIA Reranker** for result quality improvement (optional)
-- **OpenAI Embeddings** for document processing
-
-## Limitations
-
-- Currently supports only text files (.txt)
-- Document processing required before querying
-- Larger documents may take longer to process
-
-## Contributing
-
-Feel free to submit issues, fork the repository, and create pull requests for any improvements.
-
-
+It features a stunning, modern dark-mode UI built on **Gradio 5** and a lightning-fast asynchronous backend powered by **FastAPI** and **LangChain**.
 
 ---
 
-Built with ❤️ using LangChain, OpenAI, FAISS, and Streamlit.
+## ✨ Features
+- **Multi-Document Support:** Upload PDFs, TXT, DOCX, Markdown, HTML, and CSVs.
+- **Lightning Fast Vector DB:** Uses local FAISS for millisecond retrieval times.
+- **Intelligent Chunking:** Configurable chunk sizes and overlaps to prevent data loss across tables and complex PDF layouts.
+- **Dynamic API Switching:** Instantly swap between OpenAI (`gpt-4o`, `gpt-4o-mini`) and DeepSeek from the frontend UI without restarting the server.
+- **Smart Citations:** Automatically attaches a collapsible `<details>` block at the bottom of the AI's response showing exactly which documents it used.
+- **Persistent Memory:** Chat history and Vector Databases survive container restarts via mounted volumes.
 
+---
 
+## 🚀 Running Locally (Windows / VS Code)
+
+The fastest way to test changes before pushing to production is running the app locally on your machine.
+
+1. **Clone the repository and open in VS Code.**
+2. **Create a Virtual Environment (Optional but recommended):**
+   ```bash
+   python -m venv venv
+   .\venv\Scripts\activate
+   ```
+3. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Create a `.env` file:**
+   Create a `.env` file in the root directory and add your API keys:
+   ```env
+   OPENAI_API_KEY=sk-your-key-here
+   DEEPSEEK_API_KEY=sk-your-key-here
+   
+   CHUNK_SIZE=3000
+   CHUNK_OVERLAP=600
+   ```
+5. **Start the Server:**
+   ```bash
+   python api.py
+   ```
+6. **Open your browser:** Go to `http://localhost:8000`
+
+---
+
+## ☁️ Deploying to Google Cloud (Compute Engine VM)
+
+This application is containerized with Docker, making it perfectly suited for a GCP Virtual Machine.
+
+### 1. Initial VM Setup
+When creating your VM in the Google Cloud Console, **you must check the "Allow HTTP traffic" firewall box**.
+
+### 2. Install Docker & Clone
+SSH into your VM and run:
+```bash
+sudo apt-get update
+sudo apt-get install -y docker.io git
+sudo systemctl enable --now docker
+
+git clone <your-repo-url>
+cd <your-repo-folder>
+```
+
+### 3. Setup Persistent Volumes & Environment Variables
+Create the folders that will survive Docker restarts:
+```bash
+mkdir faiss_index
+mkdir uploads
+nano .env # Paste your API keys here!
+```
+
+### 4. Build and Run
+```bash
+sudo docker build -t my-rag-app .
+
+sudo docker run -d \
+  --name my-rag-app \
+  -p 80:8000 \
+  -v $(pwd)/faiss_index:/app/faiss_index \
+  -v $(pwd)/uploads:/app/uploads \
+  --env-file .env \
+  --restart unless-stopped \
+  my-rag-app
+```
+*(You can now visit your VM's External IP address in your browser! Make sure to explicitly type `http://` and NOT `https://`)*
+
+---
+
+## 🛠️ Troubleshooting & Known Quirks
+
+- **"Device or resource busy: 'faiss_index'" Error:**
+  If you attempt to clear the knowledge base and see this error, ensure your code is updated. The app is designed to delete the *contents* of the folder rather than the folder itself, because Linux prevents you from deleting active Docker volume mounts.
+  
+- **Browser Connection Timeout (GCP):**
+  If your VM is running perfectly (`curl -I http://localhost` returns 200 OK) but you cannot access it from your browser, you are likely clicking the IP link directly from the GCP Dashboard. GCP automatically prepends `https://`, which breaks the connection. Always manually type `http://<YOUR_IP>` in a new tab.
+
+- **Orange UI / Freezing:**
+  This application is pinned to **Gradio 5**. Do not upgrade to Gradio 6, as it introduces severe breaking changes to the CSS engine and Server-Sent Events (SSE) which will break the streaming UI.
