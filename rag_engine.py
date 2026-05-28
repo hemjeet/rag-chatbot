@@ -512,8 +512,15 @@ class RAGEngine:
         # Remove files on disk
         store_path = settings.vector_store_path
         if os.path.exists(store_path):
-            shutil.rmtree(store_path)
-            os.makedirs(store_path, exist_ok=True)
+            for filename in os.listdir(store_path):
+                filepath = os.path.join(store_path, filename)
+                try:
+                    if os.path.isfile(filepath):
+                        os.unlink(filepath)
+                    elif os.path.isdir(filepath):
+                        shutil.rmtree(filepath)
+                except Exception as e:
+                    logger.warning(f"Failed to delete {filepath}: {e}")
 
         logger.info("🗑️ Knowledge base cleared")
         return {"status": "cleared", "message": "Knowledge base has been cleared."}

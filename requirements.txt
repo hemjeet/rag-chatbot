@@ -16,7 +16,7 @@ python-multipart>=0.0.18
 pydantic-settings>=2.7.0
 
 # ── Gradio Frontend ──
-gradio>=5.0.0
+gradio>=5.0.0,<6.0.0
 
 # ── Document Loaders ──
 pypdf>=5.0.0
