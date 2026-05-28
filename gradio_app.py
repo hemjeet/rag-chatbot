@@ -161,7 +161,6 @@ def build_interface(engine) -> gr.Blocks:
                         chatbot = gr.Chatbot(
                             label="Conversation",
                             height=520,
-                            show_copy_button=True,
                             avatar_images=(None, "https://cdn-icons-png.flaticon.com/512/4712/4712027.png"),
                             type="messages",
                             placeholder=(
