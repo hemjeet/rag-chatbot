@@ -335,6 +335,7 @@ def build_interface(engine) -> gr.Blocks:
             # Stream the response
             full_answer = ""
             sources_text = "_No sources_"
+            sources_block = ""
             try:
                 import json
 
@@ -350,6 +351,7 @@ def build_interface(engine) -> gr.Blocks:
                             src_list = data["__sources__"]
                             if src_list:
                                 sources_text = "**Sources used:**\n" + "\n".join(f"- 📄 `{s}`" for s in src_list)
+                                sources_block = "\n\n<details><summary>📚 Sources</summary>" + ", ".join(f"`{s}`" for s in src_list) + "</details>"
                             else:
                                 sources_text = "_No direct sources found_"
                             
@@ -364,6 +366,12 @@ def build_interface(engine) -> gr.Blocks:
                     history[-1] = {"role": "assistant", "content": full_answer}
                     
                     # Yield back to Gradio to render the new token on screen
+                    yield history, "", sources_text
+
+                # Append sources to the bottom of the chat bubble once finished
+                if sources_block:
+                    full_answer += sources_block
+                    history[-1] = {"role": "assistant", "content": full_answer}
                     yield history, "", sources_text
 
             except Exception as e:
