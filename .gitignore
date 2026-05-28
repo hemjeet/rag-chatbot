@@ -1,0 +1,35 @@
+# Environment and Secrets
+.env
+.env.local
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# RAG Data (Do not commit the database or uploaded files)
+faiss_index/
+faiss_index_openai/
+uploads/
+bm25_docs.json
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.git/
+.vscode/
+faiss_index/
+faiss_index_*/
+uploads/
+bm25_docs.json
